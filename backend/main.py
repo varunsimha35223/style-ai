@@ -10,9 +10,13 @@ app = FastAPI(title="StyleAI API")
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
+# Collect all allowed origins — env var + localhost + any vercel.app subdomains
+_origins = [FRONTEND_URL, "http://localhost:5173", "https://localhost:5173"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL, "http://localhost:5173", "https://localhost:5173"],
+    allow_origins=_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

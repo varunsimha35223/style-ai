@@ -1,27 +1,44 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
-function buildOutfitPrompt(occasion, idea, result) {
-  const colors = (result.best_colors || []).slice(0, 3).join(', ')
-  const styles = (result.style_suggestions || []).slice(0, 2).join(', ')
-  return encodeURIComponent(
-    `fashion editorial photo, ${idea}, ${result.skin_tone} skin tone, ${result.body_type} body type, ` +
-    `wearing ${colors} colors, ${styles} style, full body shot, studio lighting, clean white background, ` +
-    `high quality fashion photography, professional model, ${occasion} outfit, 2025 fashion`
-  )
+function buildFlickrKeywords(occasion, idea, result) {
+  // Pull specific clothing words from the idea text
+  const words = idea.toLowerCase().match(/\b(blazer|shirt|trousers|jeans|dress|skirt|jacket|coat|sweater|kurta|saree|suit|formal|casual|sporty|elegant|fitted|loose|linen|cotton|denim)\b/g) || []
+  const colors = (result.best_colors || []).slice(0, 2).map(c => c.toLowerCase().split(' ')[0])
+  const occasionMap = {
+    'Daily Casual': 'casual,streetstyle',
+    'Office': 'office,workwear,professional',
+    'College': 'campus,student,casual',
+    'Gym': 'activewear,sportswear,gym',
+    'Formal Events': 'formal,elegant,gala',
+  }
+  const base = occasionMap[occasion] || 'fashion,outfit'
+  const extras = [...new Set([...words.slice(0, 2), ...colors.slice(0, 1)])].join(',')
+  return `${base},${extras}`.replace(/,+/g, ',').replace(/,$/, '')
 }
 
 function OutfitImage({ occasion, idea, result }) {
   const [status, setStatus] = useState('idle') // idle | loading | loaded | error
-  const [seed] = useState(() => Math.floor(Math.random() * 9999))
+  const [counter, setCounter] = useState(0) // increment to get a new random photo
 
-  const prompt = buildOutfitPrompt(occasion, idea, result)
-  const src = `https://image.pollinations.ai/prompt/${prompt}?width=400&height=560&seed=${seed}&nologo=true`
+  const keywords = buildFlickrKeywords(occasion, idea, result)
+  // loremflickr returns real Flickr photos matching the keywords — free, no API key
+  const src = `https://loremflickr.com/400/560/${keywords}?lock=${counter}`
+
+  function handleShow() {
+    setStatus('loading')
+  }
+
+  function handleRegenerate(e) {
+    e.stopPropagation()
+    setStatus('loading')
+    setCounter(c => c + 1)
+  }
 
   if (status === 'idle') {
     return (
       <button
-        onClick={() => setStatus('loading')}
+        onClick={handleShow}
         style={{
           marginTop: '10px',
           fontSize: '12px', fontWeight: 700,
@@ -33,50 +50,88 @@ function OutfitImage({ occasion, idea, result }) {
           transition: 'all 0.15s',
         }}
       >
-        ✦ Generate Sample Look
+        ✦ Show Style Inspiration
       </button>
     )
   }
 
   return (
-    <div style={{ marginTop: '12px', position: 'relative' }}>
-      {status === 'loading' && (
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 2,
-          background: 'rgba(8,8,16,0.85)',
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center',
-          borderRadius: '12px', minHeight: '120px', gap: '10px',
-        }}>
+    <div style={{ marginTop: '12px' }}>
+      <div style={{ position: 'relative', display: 'inline-block' }}>
+        {status === 'loading' && (
           <div style={{
-            width: '28px', height: '28px', borderRadius: '50%',
-            borderTop: '2px solid #a855f7',
-            border: '2px solid rgba(168,85,247,0.15)',
-            animation: 'spin 0.8s linear infinite',
-          }} />
-          <span style={{ fontSize: '12px', color: '#a855f7', fontWeight: 600 }}>Generating look…</span>
+            position: 'absolute', inset: 0, zIndex: 2,
+            background: 'rgba(8,8,16,0.8)',
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            borderRadius: '12px', width: '220px', height: '308px', gap: '10px',
+          }}>
+            <div style={{
+              width: '28px', height: '28px', borderRadius: '50%',
+              border: '2px solid rgba(168,85,247,0.2)',
+              borderTop: '2px solid #a855f7',
+              animation: 'spin 0.8s linear infinite',
+            }} />
+            <span style={{ fontSize: '12px', color: '#a855f7', fontWeight: 600 }}>Loading look…</span>
+          </div>
+        )}
+        <img
+          key={src}
+          src={src}
+          alt={`${occasion} style inspiration`}
+          onLoad={() => setStatus('loaded')}
+          onError={() => setStatus('error')}
+          style={{
+            width: '220px', height: '308px',
+            objectFit: 'cover',
+            borderRadius: '12px',
+            border: '1px solid rgba(168,85,247,0.3)',
+            display: status === 'error' ? 'none' : 'block',
+            opacity: status === 'loaded' ? 1 : 0,
+            transition: 'opacity 0.4s',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+          }}
+        />
+        {status === 'loaded' && (
+          <div style={{
+            position: 'absolute', bottom: '8px', right: '8px',
+          }}>
+            <button
+              onClick={handleRegenerate}
+              title="Show different photo"
+              style={{
+                fontSize: '11px', fontWeight: 700,
+                padding: '5px 10px', borderRadius: '6px', border: 'none',
+                background: 'rgba(168,85,247,0.85)', color: '#fff',
+                cursor: 'pointer',
+              }}
+            >
+              ↻ Different
+            </button>
+          </div>
+        )}
+      </div>
+      {status === 'error' && (
+        <div style={{ marginTop: '8px' }}>
+          <p style={{ fontSize: '12px', color: '#ef4444', margin: '0 0 6px' }}>
+            Could not load photo
+          </p>
+          <button
+            onClick={() => { setStatus('loading'); setCounter(c => c + 1) }}
+            style={{
+              fontSize: '12px', fontWeight: 600,
+              padding: '5px 12px', borderRadius: '6px', border: 'none',
+              background: 'rgba(168,85,247,0.2)', color: '#e879f9',
+              cursor: 'pointer', outline: '1px solid rgba(168,85,247,0.4)',
+            }}
+          >
+            Retry
+          </button>
         </div>
       )}
-      <img
-        src={src}
-        alt={`${occasion} outfit`}
-        onLoad={() => setStatus('loaded')}
-        onError={() => setStatus('error')}
-        style={{
-          width: '100%', maxWidth: '220px',
-          borderRadius: '12px',
-          border: '1px solid rgba(168,85,247,0.3)',
-          display: status === 'error' ? 'none' : 'block',
-          opacity: status === 'loaded' ? 1 : 0,
-          transition: 'opacity 0.4s',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-        }}
-      />
-      {status === 'error' && (
-        <p style={{ fontSize: '12px', color: '#ef4444', margin: '8px 0 0' }}>
-          Generation failed — try again
-        </p>
-      )}
+      <p style={{ fontSize: '10px', color: '#334155', margin: '6px 0 0' }}>
+        Style inspiration photo via Flickr
+      </p>
     </div>
   )
 }
@@ -379,7 +434,7 @@ export default function Results() {
         {result.outfit_ideas && Object.keys(result.outfit_ideas).length > 0 && (
           <Section title="Daily Outfit Ideas" icon="📅">
             <p style={{ fontSize: '12px', color: '#475569', margin: '0 0 16px' }}>
-              Click <strong style={{ color: '#a855f7' }}>✦ Generate Sample Look</strong> on any occasion to see an AI-generated outfit image
+              Click <strong style={{ color: '#a855f7' }}>✦ Show Style Inspiration</strong> on any occasion to see real fashion photos matching your style
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {Object.entries(result.outfit_ideas).map(([occasion, idea]) => (

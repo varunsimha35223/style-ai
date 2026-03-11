@@ -4,18 +4,21 @@ import PhotoSlot from '../components/PhotoSlot'
 import { analyzeStyle } from '../api/client'
 
 const T = {
-  bg: '#faf7f2',
   white: '#ffffff',
-  textPrimary: '#1a1614',
-  textSecondary: '#78716c',
-  textMuted: '#a8968c',
-  accent: '#c4614a',
-  accentHover: '#ad5340',
-  accentLight: '#f9ede9',
-  sage: '#6b9e7e',
-  sageLight: '#e8f3ec',
-  border: '#e8e0d8',
-  shadow: '0 4px 24px rgba(26,22,20,0.07)',
+  bg: '#f9f7f4',
+  textPrimary: '#0f0e0d',
+  textSecondary: '#4a4540',
+  textMuted: '#9a9088',
+  accent: '#d95f3b',
+  accentLight: '#fce8e1',
+  pastelSage: '#d4ecdf',
+  sageText: '#2e7d52',
+  pastelGold: '#fdecc8',
+  goldText: '#a06820',
+  pastelLavender: '#e8dff8',
+  lavenderText: '#5b3fa6',
+  border: '#e8e4de',
+  shadow: '0 2px 16px rgba(15,14,13,0.06)',
 }
 
 const OCCASIONS = ['Daily Casual', 'Office', 'College', 'Gym', 'Formal Events']
@@ -50,6 +53,9 @@ export default function Upload() {
     'Crafting outfit recommendations…',
   ]
 
+  const stepColors = [T.accentLight, T.pastelSage, T.pastelGold, T.pastelLavender, T.accentLight]
+  const stepTextColors = [T.accent, T.sageText, T.goldText, T.lavenderText, T.accent]
+
   async function handleSubmit() {
     if (!canSubmit) return
     setError(null)
@@ -76,72 +82,83 @@ export default function Upload() {
     }
   }
 
+  // Loading screen
   if (loading) {
     return (
       <div style={{
-        minHeight: '100vh', background: T.bg,
+        minHeight: '100vh', background: T.white,
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        padding: '24px',
+        padding: '24px', position: 'relative', overflow: 'hidden',
       }}>
+        {/* Pastel blobs */}
         <div style={{
-          position: 'fixed', top: '-100px', right: '-80px',
+          position: 'fixed', top: '-80px', right: '-80px',
           width: '400px', height: '400px',
-          background: 'radial-gradient(circle, rgba(196,97,74,0.1) 0%, transparent 70%)',
-          pointerEvents: 'none',
+          background: T.accentLight, borderRadius: '50%',
+          filter: 'blur(60px)', opacity: 0.6, pointerEvents: 'none',
+        }} />
+        <div style={{
+          position: 'fixed', bottom: '-80px', left: '-80px',
+          width: '360px', height: '360px',
+          background: T.pastelSage, borderRadius: '50%',
+          filter: 'blur(60px)', opacity: 0.5, pointerEvents: 'none',
         }} />
 
         {/* Spinner */}
-        <div style={{ position: 'relative', width: '72px', height: '72px', marginBottom: '28px' }}>
+        <div style={{ position: 'relative', width: '64px', height: '64px', marginBottom: '32px' }}>
           <div style={{
             position: 'absolute', inset: 0, borderRadius: '50%',
-            border: `3px solid ${T.border}`,
+            border: `2px solid ${T.border}`,
           }} />
           <div style={{
             position: 'absolute', inset: 0, borderRadius: '50%',
-            border: '3px solid transparent',
-            borderTop: `3px solid ${T.accent}`,
+            border: '2px solid transparent',
+            borderTop: `2px solid ${T.accent}`,
             animation: 'spin 0.9s linear infinite',
           }} />
           <div style={{
             position: 'absolute', inset: 0, display: 'flex',
-            alignItems: 'center', justifyContent: 'center', fontSize: '26px',
+            alignItems: 'center', justifyContent: 'center', fontSize: '22px',
           }}>✦</div>
         </div>
 
-        <p style={{ fontSize: '22px', fontWeight: 900, color: T.textPrimary, margin: '0 0 6px', letterSpacing: '-0.02em' }}>
+        <p style={{
+          fontSize: '28px', fontWeight: 900, color: T.textPrimary,
+          margin: '0 0 6px', letterSpacing: '-0.04em',
+        }}>
           Styling you…
         </p>
-        <p style={{ fontSize: '14px', color: T.accent, margin: '0 0 48px', fontWeight: 600 }}>
+        <p style={{ fontSize: '14px', color: T.accent, margin: '0 0 48px', fontWeight: 700 }}>
           {loadingSteps[loadingStep]}
         </p>
 
+        {/* Step list */}
         <div style={{
-          background: T.white, borderRadius: '20px', padding: '24px 32px',
+          background: T.white, borderRadius: '20px', padding: '24px 28px',
           border: `1px solid ${T.border}`, boxShadow: T.shadow,
-          display: 'flex', flexDirection: 'column', gap: '14px',
-          width: '100%', maxWidth: '340px',
+          display: 'flex', flexDirection: 'column', gap: '12px',
+          width: '100%', maxWidth: '360px',
         }}>
           {loadingSteps.map((step, i) => (
             <div key={step} style={{
               display: 'flex', alignItems: 'center', gap: '12px',
-              opacity: i <= loadingStep ? 1 : 0.35,
+              opacity: i <= loadingStep ? 1 : 0.3,
               transition: 'opacity 0.4s',
             }}>
               <div style={{
-                width: '22px', height: '22px', borderRadius: '50%', flexShrink: 0,
-                background: i < loadingStep ? T.sageLight : i === loadingStep ? T.accentLight : '#f5f5f5',
-                border: `1.5px solid ${i < loadingStep ? T.sage : i === loadingStep ? T.accent : T.border}`,
+                width: '24px', height: '24px', borderRadius: '8px', flexShrink: 0,
+                background: i <= loadingStep ? stepColors[i] : '#f0ece8',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '10px', fontWeight: 800,
-                color: i < loadingStep ? T.sage : i === loadingStep ? T.accent : T.textMuted,
+                fontSize: '10px', fontWeight: 900,
+                color: i < loadingStep ? stepTextColors[i] : i === loadingStep ? stepTextColors[i] : T.textMuted,
               }}>
                 {i < loadingStep ? '✓' : i === loadingStep ? '●' : ''}
               </div>
               <span style={{
                 fontSize: '13px',
-                color: i < loadingStep ? T.sage : i === loadingStep ? T.accent : T.textMuted,
+                color: i < loadingStep ? stepTextColors[i] : i === loadingStep ? T.textPrimary : T.textMuted,
                 fontWeight: i === loadingStep ? 700 : 400,
               }}>
                 {step}
@@ -149,7 +166,6 @@ export default function Upload() {
             </div>
           ))}
         </div>
-
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     )
@@ -159,74 +175,72 @@ export default function Upload() {
 
   return (
     <div style={{
-      minHeight: '100vh', background: T.bg,
+      minHeight: '100vh', background: T.white,
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-      position: 'relative',
     }}>
-      {/* Warm blobs */}
-      <div style={{
-        position: 'fixed', top: '-100px', right: '-60px',
-        width: '360px', height: '360px',
-        background: 'radial-gradient(circle, rgba(196,97,74,0.09) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'fixed', bottom: '-80px', left: '-60px',
-        width: '320px', height: '320px',
-        background: 'radial-gradient(circle, rgba(107,158,126,0.08) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }} />
 
       {/* Header */}
       <header style={{
         position: 'sticky', top: 0, zIndex: 50,
-        background: 'rgba(250,247,242,0.94)',
-        backdropFilter: 'blur(16px)',
+        background: 'rgba(255,255,255,0.92)',
+        backdropFilter: 'blur(20px)',
         borderBottom: `1px solid ${T.border}`,
-        padding: '0 24px', height: '60px',
+        padding: '0 32px', height: '56px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{
-            width: '30px', height: '30px', borderRadius: '9px',
-            background: `linear-gradient(135deg, ${T.accent}, #c9973e)`,
+            width: '28px', height: '28px', borderRadius: '8px',
+            background: T.accent,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#fff', fontSize: '13px', fontWeight: 900,
-            boxShadow: '0 3px 10px rgba(196,97,74,0.3)',
+            color: '#fff', fontSize: '12px', fontWeight: 900,
           }}>S</div>
-          <span style={{ fontSize: '17px', fontWeight: 900, color: T.textPrimary, letterSpacing: '-0.03em' }}>
+          <span style={{ fontSize: '16px', fontWeight: 900, color: T.textPrimary, letterSpacing: '-0.04em' }}>
             Style<span style={{ color: T.accent }}>AI</span>
           </span>
         </div>
-        {/* Progress dots */}
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <span style={{ fontSize: '12px', color: T.textMuted, marginRight: '4px' }}>
+
+        {/* Progress bar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '12px', color: T.textMuted, fontWeight: 600 }}>
             {photoCount}/3 photos
           </span>
-          {[0, 1, 2].map(n => (
-            <div key={n} style={{
-              width: '28px', height: '5px', borderRadius: '999px',
-              background: photos[n] ? T.accent : T.border,
-              transition: 'background 0.3s',
-            }} />
-          ))}
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {[0, 1, 2].map(n => (
+              <div key={n} style={{
+                width: '32px', height: '4px', borderRadius: '999px',
+                background: photos[n] ? T.accent : T.border,
+                transition: 'background 0.3s',
+              }} />
+            ))}
+          </div>
         </div>
       </header>
 
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px 80px', position: 'relative', zIndex: 1 }}>
+      <div style={{ maxWidth: '820px', margin: '0 auto', padding: '48px 24px 80px' }}>
 
-        {/* Title */}
-        <div style={{ marginBottom: '36px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 900, color: T.textPrimary, margin: '0 0 8px', letterSpacing: '-0.03em' }}>
+        {/* Page title */}
+        <div style={{ marginBottom: '40px' }}>
+          <p style={{
+            fontSize: '11px', fontWeight: 700, textTransform: 'uppercase',
+            letterSpacing: '0.12em', color: T.textMuted, margin: '0 0 8px',
+          }}>Step 1</p>
+          <h1 style={{
+            fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 900,
+            color: T.textPrimary, margin: '0 0 8px', letterSpacing: '-0.04em',
+          }}>
             Upload Your Photos
           </h1>
-          <p style={{ fontSize: '14px', color: T.textSecondary, margin: 0 }}>
+          <p style={{ fontSize: '14px', color: T.textSecondary, margin: 0, lineHeight: 1.6 }}>
             3 angles give the AI a complete picture — better photos = better recommendations
           </p>
         </div>
 
         {/* Photo grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '40px' }}>
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '12px', marginBottom: '48px',
+        }}>
           <PhotoSlot
             index={1} label="Front Body" icon="🧍"
             hint="Full length, facing camera, standing straight"
@@ -244,22 +258,26 @@ export default function Upload() {
           />
         </div>
 
-        {/* Questions card */}
-        <div style={{
-          background: T.white, border: `1px solid ${T.border}`,
-          borderRadius: '24px', padding: '32px',
-          boxShadow: T.shadow, marginBottom: '28px',
-        }}>
-          <h2 style={{ fontSize: '17px', fontWeight: 900, color: T.textPrimary, margin: '0 0 28px', letterSpacing: '-0.02em' }}>
-            Quick Questions
-          </h2>
+        {/* Divider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px' }}>
+          <div style={{ flex: 1, height: '1px', background: T.border }} />
+          <p style={{
+            fontSize: '10px', fontWeight: 700, textTransform: 'uppercase',
+            letterSpacing: '0.12em', color: T.textMuted, margin: 0,
+          }}>Step 2 — Quick Questions</p>
+          <div style={{ flex: 1, height: '1px', background: T.border }} />
+        </div>
+
+        {/* Questions */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '36px', marginBottom: '40px' }}>
 
           {/* Occasions */}
-          <div style={{ marginBottom: '28px' }}>
-            <p style={{ fontSize: '13px', fontWeight: 700, color: T.textPrimary, margin: '0 0 12px' }}>
+          <div>
+            <p style={{ fontSize: '15px', fontWeight: 800, color: T.textPrimary, margin: '0 0 4px', letterSpacing: '-0.02em' }}>
               When do you usually dress up?
               <span style={{ color: T.accent }}> *</span>
             </p>
+            <p style={{ fontSize: '12px', color: T.textMuted, margin: '0 0 14px' }}>Select all that apply</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {OCCASIONS.map(occ => {
                 const active = occasions.includes(occ)
@@ -268,13 +286,13 @@ export default function Upload() {
                     key={occ}
                     onClick={() => toggleOccasion(occ)}
                     style={{
-                      fontSize: '13px', fontWeight: 600,
-                      padding: '9px 18px', borderRadius: '12px', border: 'none',
-                      background: active ? T.accentLight : '#f5f0eb',
+                      fontSize: '13px', fontWeight: 700,
+                      padding: '10px 20px', borderRadius: '999px',
+                      border: active ? `1.5px solid ${T.accent}` : `1.5px solid ${T.border}`,
+                      background: active ? T.accentLight : T.white,
                       color: active ? T.accent : T.textSecondary,
-                      cursor: 'pointer',
-                      outline: active ? `2px solid ${T.accent}` : '2px solid transparent',
-                      transition: 'all 0.15s',
+                      cursor: 'pointer', transition: 'all 0.15s',
+                      letterSpacing: '-0.01em',
                     }}
                   >
                     {occ}
@@ -285,15 +303,16 @@ export default function Upload() {
           </div>
 
           {/* Budget */}
-          <div style={{ marginBottom: '28px' }}>
-            <p style={{ fontSize: '13px', fontWeight: 700, color: T.textPrimary, margin: '0 0 12px' }}>
+          <div>
+            <p style={{ fontSize: '15px', fontWeight: 800, color: T.textPrimary, margin: '0 0 4px', letterSpacing: '-0.02em' }}>
               Budget range<span style={{ color: T.accent }}> *</span>
             </p>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <p style={{ fontSize: '12px', color: T.textMuted, margin: '0 0 14px' }}>Choose one</p>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
               {[
-                { label: 'Budget', sub: 'Affordable picks' },
-                { label: 'Mid-range', sub: 'Best of both worlds' },
-                { label: 'Premium', sub: 'Investment pieces' },
+                { label: 'Budget', sub: 'Affordable picks', bg: T.pastelSage, col: T.sageText },
+                { label: 'Mid-range', sub: 'Best of both worlds', bg: T.pastelGold, col: T.goldText },
+                { label: 'Premium', sub: 'Investment pieces', bg: T.pastelLavender, col: T.lavenderText },
               ].map(b => {
                 const active = budget === b.label
                 return (
@@ -302,16 +321,15 @@ export default function Upload() {
                     onClick={() => setBudget(b.label)}
                     style={{
                       textAlign: 'left',
-                      padding: '12px 18px', borderRadius: '14px', border: 'none',
-                      background: active ? T.accentLight : '#f5f0eb',
-                      cursor: 'pointer',
-                      outline: active ? `2px solid ${T.accent}` : '2px solid transparent',
-                      transition: 'all 0.15s',
-                      minWidth: '130px',
+                      padding: '14px 20px', borderRadius: '16px',
+                      border: active ? `2px solid ${T.accent}` : `1.5px solid ${T.border}`,
+                      background: active ? b.bg : T.white,
+                      cursor: 'pointer', transition: 'all 0.15s',
+                      minWidth: '140px',
                     }}
                   >
-                    <p style={{ fontSize: '13px', fontWeight: 700, color: active ? T.accent : T.textPrimary, margin: '0 0 2px' }}>{b.label}</p>
-                    <p style={{ fontSize: '11px', color: active ? T.accent : T.textMuted, margin: 0 }}>{b.sub}</p>
+                    <p style={{ fontSize: '14px', fontWeight: 800, color: active ? b.col : T.textPrimary, margin: '0 0 2px', letterSpacing: '-0.02em' }}>{b.label}</p>
+                    <p style={{ fontSize: '11px', color: active ? b.col : T.textMuted, margin: 0, fontWeight: 500 }}>{b.sub}</p>
                   </button>
                 )
               })}
@@ -320,19 +338,21 @@ export default function Upload() {
 
           {/* Color preference */}
           <div>
-            <p style={{ fontSize: '13px', fontWeight: 700, color: T.textPrimary, margin: '0 0 12px' }}>
+            <p style={{ fontSize: '15px', fontWeight: 800, color: T.textPrimary, margin: '0 0 4px', letterSpacing: '-0.02em' }}>
               Colors you love or hate
-              <span style={{ color: T.textMuted, fontWeight: 400 }}> (optional)</span>
+              <span style={{ fontSize: '13px', color: T.textMuted, fontWeight: 400 }}> — optional</span>
             </p>
+            <p style={{ fontSize: '12px', color: T.textMuted, margin: '0 0 14px' }}>Free text, be as specific as you like</p>
             <input
               type="text"
               value={colorPref}
               onChange={e => setColorPref(e.target.value)}
               placeholder="e.g. I love earth tones, hate bright yellow…"
               style={{
-                width: '100%', padding: '12px 16px',
-                background: '#f9f5f0', border: `1.5px solid ${T.border}`,
-                borderRadius: '12px', color: T.textPrimary, fontSize: '14px',
+                width: '100%', padding: '14px 16px',
+                background: T.white,
+                border: `1.5px solid ${T.border}`,
+                borderRadius: '14px', color: T.textPrimary, fontSize: '14px',
                 outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box',
                 transition: 'border-color 0.15s',
               }}
@@ -353,22 +373,19 @@ export default function Upload() {
           </div>
         )}
 
-        {/* Submit button */}
+        {/* Submit */}
         <button
           onClick={handleSubmit}
           disabled={!canSubmit}
           style={{
             width: '100%', padding: '18px',
-            fontSize: '16px', fontWeight: 900,
-            borderRadius: '16px', border: 'none',
-            background: canSubmit
-              ? `linear-gradient(135deg, ${T.accent}, #c9973e)`
-              : '#e8e0d8',
+            fontSize: '16px', fontWeight: 900, letterSpacing: '-0.02em',
+            borderRadius: '999px', border: 'none',
+            background: canSubmit ? T.accent : T.border,
             color: canSubmit ? '#fff' : T.textMuted,
             cursor: canSubmit ? 'pointer' : 'not-allowed',
-            boxShadow: canSubmit ? '0 6px 24px rgba(196,97,74,0.35)' : 'none',
+            boxShadow: canSubmit ? '0 8px 32px rgba(217,95,59,0.35)' : 'none',
             transition: 'all 0.2s',
-            letterSpacing: '-0.01em',
           }}
         >
           {!allPhotos
@@ -377,7 +394,7 @@ export default function Upload() {
             ? 'Select at least one occasion'
             : !budget
             ? 'Select a budget range'
-            : '✦ Analyze My Style'}
+            : '✦ Analyze My Style →'}
         </button>
 
         <p style={{ textAlign: 'center', fontSize: '12px', color: T.textMuted, marginTop: '14px' }}>

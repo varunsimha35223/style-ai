@@ -2,14 +2,15 @@ import os
 import json
 import base64
 import re
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 
 load_dotenv()
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-MODEL = "gemini-1.5-flash"
+MODEL = "gemini-2.5-flash"
 
 SYSTEM_PROMPT = """You are an expert personal stylist and color analyst with 20+ years of experience.
 Analyze the provided photos carefully and return ONLY a valid JSON object with no extra text.
@@ -39,12 +40,6 @@ The JSON must have exactly these keys:
 Only include outfit_ideas for occasions provided by the user. Be specific, practical, and encouraging.
 """
 
-def encode_image(image_bytes: bytes, mime_type: str) -> dict:
-    return {
-        "mime_type": mime_type,
-        "data": base64.b64encode(image_bytes).decode("utf-8")
-    }
-
 async def analyze_style(
     photo1_bytes: bytes, photo1_mime: str,
     photo2_bytes: bytes, photo2_mime: str,
@@ -53,7 +48,6 @@ async def analyze_style(
     budget: str,
     color_preference: str
 ) -> dict:
-    model = genai.GenerativeModel(MODEL)
 
     user_context = f"""
 Please analyze these 3 photos:
@@ -69,21 +63,20 @@ User preferences:
 Return ONLY the JSON object as described, tailored to these occasions: {occasions}.
 """
 
-    img1 = encode_image(photo1_bytes, photo1_mime)
-    img2 = encode_image(photo2_bytes, photo2_mime)
-    img3 = encode_image(photo3_bytes, photo3_mime)
+    contents = [
+        types.Part.from_bytes(data=photo1_bytes, mime_type=photo1_mime),
+        types.Part.from_bytes(data=photo2_bytes, mime_type=photo2_mime),
+        types.Part.from_bytes(data=photo3_bytes, mime_type=photo3_mime),
+        types.Part.from_text(text=user_context),
+        types.Part.from_text(text=SYSTEM_PROMPT),
+    ]
 
-    response = model.generate_content([
-        {"inline_data": img1},
-        {"inline_data": img2},
-        {"inline_data": img3},
-        user_context,
-        SYSTEM_PROMPT,
-    ])
+    response = client.models.generate_content(
+        model=MODEL,
+        contents=contents,
+    )
 
     raw = response.text.strip()
-
-    # Strip markdown code fences if present
     raw = re.sub(r"^```(?:json)?\s*", "", raw)
     raw = re.sub(r"\s*```$", "", raw)
 

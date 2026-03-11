@@ -1,5 +1,18 @@
 import { useState, useRef } from 'react'
 
+const T = {
+  bg: '#faf7f2',
+  white: '#ffffff',
+  textPrimary: '#1a1614',
+  textSecondary: '#78716c',
+  textMuted: '#a8968c',
+  accent: '#c4614a',
+  accentLight: '#f9ede9',
+  border: '#e8e0d8',
+  borderHover: 'rgba(196,97,74,0.5)',
+  borderActive: '#c4614a',
+}
+
 export default function PhotoSlot({ label, hint, icon, index, file, onChange }) {
   const [dragging, setDragging] = useState(false)
   const [hovered, setHovered] = useState(false)
@@ -26,20 +39,20 @@ export default function PhotoSlot({ label, hint, icon, index, file, onChange }) 
   }
 
   const borderColor = file
-    ? 'rgba(168,85,247,0.6)'
+    ? T.borderActive
     : dragging
-    ? 'rgba(168,85,247,0.8)'
+    ? T.borderActive
     : hovered
-    ? 'rgba(168,85,247,0.4)'
-    : 'rgba(255,255,255,0.1)'
+    ? T.borderHover
+    : T.border
 
   const bg = file
-    ? 'rgba(168,85,247,0.06)'
+    ? '#fff'
     : dragging
-    ? 'rgba(168,85,247,0.1)'
+    ? T.accentLight
     : hovered
-    ? 'rgba(255,255,255,0.04)'
-    : 'rgba(255,255,255,0.02)'
+    ? '#fdf9f7'
+    : T.white
 
   return (
     <div
@@ -51,13 +64,14 @@ export default function PhotoSlot({ label, hint, icon, index, file, onChange }) 
       onDrop={handleDrop}
       style={{
         border: `2px dashed ${borderColor}`,
-        borderRadius: '16px',
+        borderRadius: '18px',
         background: bg,
         transition: 'all 0.2s ease',
         cursor: file ? 'default' : 'pointer',
         overflow: 'hidden',
         position: 'relative',
         aspectRatio: '3/4',
+        boxShadow: file ? '0 4px 20px rgba(26,22,20,0.08)' : 'none',
       }}
     >
       <input
@@ -75,11 +89,10 @@ export default function PhotoSlot({ label, hint, icon, index, file, onChange }) 
             alt={label}
             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           />
-          {/* Overlay on hover */}
           {hovered && (
             <div style={{
               position: 'absolute', inset: 0,
-              background: 'rgba(0,0,0,0.5)',
+              background: 'rgba(26,22,20,0.55)',
               display: 'flex', flexDirection: 'column',
               alignItems: 'center', justifyContent: 'center', gap: '10px',
             }}>
@@ -87,8 +100,8 @@ export default function PhotoSlot({ label, hint, icon, index, file, onChange }) 
                 onClick={handleRemove}
                 style={{
                   fontSize: '13px', fontWeight: 700,
-                  background: 'rgba(239,68,68,0.9)', color: '#fff',
-                  border: 'none', borderRadius: '8px',
+                  background: '#ef4444', color: '#fff',
+                  border: 'none', borderRadius: '10px',
                   padding: '8px 18px', cursor: 'pointer',
                 }}
               >
@@ -98,19 +111,18 @@ export default function PhotoSlot({ label, hint, icon, index, file, onChange }) 
                 onClick={e => { e.stopPropagation(); inputRef.current?.click() }}
                 style={{
                   fontSize: '13px', fontWeight: 700,
-                  background: 'rgba(168,85,247,0.9)', color: '#fff',
-                  border: 'none', borderRadius: '8px',
+                  background: T.accent, color: '#fff',
+                  border: 'none', borderRadius: '10px',
                   padding: '8px 18px', cursor: 'pointer',
                 }}
               >
-                Change
+                Change Photo
               </button>
             </div>
           )}
-          {/* Badge */}
           <div style={{
             position: 'absolute', bottom: '10px', left: '10px',
-            background: 'rgba(168,85,247,0.9)',
+            background: T.accent,
             borderRadius: '8px', padding: '4px 10px',
             fontSize: '11px', fontWeight: 700, color: '#fff',
           }}>
@@ -125,25 +137,26 @@ export default function PhotoSlot({ label, hint, icon, index, file, onChange }) 
         }}>
           <div style={{
             width: '52px', height: '52px', borderRadius: '14px',
-            background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.3)',
+            background: T.accentLight,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '24px',
+            fontSize: '24px', transition: 'transform 0.2s',
+            transform: hovered ? 'scale(1.08)' : 'scale(1)',
           }}>
             {icon}
           </div>
           <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: '13px', fontWeight: 700, color: '#e2e8f0', margin: '0 0 4px' }}>{label}</p>
-            <p style={{ fontSize: '11px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>{hint}</p>
+            <p style={{ fontSize: '13px', fontWeight: 800, color: T.textPrimary, margin: '0 0 4px' }}>{label}</p>
+            <p style={{ fontSize: '11px', color: T.textMuted, margin: 0, lineHeight: 1.5 }}>{hint}</p>
           </div>
-          <p style={{ fontSize: '11px', color: '#475569', margin: 0 }}>
-            {dragging ? 'Drop it!' : 'Click or drag & drop'}
+          <p style={{ fontSize: '11px', color: dragging ? T.accent : T.textMuted, fontWeight: dragging ? 700 : 400, margin: 0 }}>
+            {dragging ? 'Drop to upload' : 'Click or drag & drop'}
           </p>
           <span style={{
-            fontSize: '10px', fontWeight: 600,
-            background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-            color: '#94a3b8', borderRadius: '999px', padding: '2px 8px',
+            fontSize: '10px', fontWeight: 700,
+            background: T.accentLight, color: T.accent,
+            borderRadius: '999px', padding: '3px 10px',
           }}>
-            Photo {index}
+            Photo {index} of 3
           </span>
         </div>
       )}

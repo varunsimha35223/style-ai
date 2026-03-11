@@ -1,6 +1,24 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+const T = {
+  bg: '#faf7f2',
+  white: '#ffffff',
+  textPrimary: '#1a1614',
+  textSecondary: '#78716c',
+  textMuted: '#a8968c',
+  accent: '#c4614a',
+  accentHover: '#ad5340',
+  accentLight: '#f9ede9',
+  sage: '#6b9e7e',
+  sageLight: '#e8f3ec',
+  gold: '#c9973e',
+  goldLight: '#fdf3e0',
+  border: '#e8e0d8',
+  shadow: '0 4px 24px rgba(26,22,20,0.07)',
+  shadowLg: '0 12px 48px rgba(26,22,20,0.12)',
+}
+
 export default function Home() {
   const navigate = useNavigate()
   const [btnHovered, setBtnHovered] = useState(false)
@@ -8,185 +26,206 @@ export default function Home() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#080810',
+      background: T.bg,
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
       overflowX: 'hidden',
       position: 'relative',
     }}>
 
-      {/* Background ambient glows */}
+      {/* Warm ambient blobs */}
       <div style={{
-        position: 'fixed', top: '-200px', left: '50%', transform: 'translateX(-50%)',
-        width: '800px', height: '600px',
-        background: 'radial-gradient(ellipse, rgba(139,92,246,0.15) 0%, transparent 65%)',
-        pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'fixed', bottom: '-200px', right: '-100px',
-        width: '600px', height: '600px',
-        background: 'radial-gradient(circle, rgba(236,72,153,0.08) 0%, transparent 65%)',
-        pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'fixed', bottom: '-100px', left: '-100px',
+        position: 'fixed', top: '-180px', right: '-80px',
         width: '500px', height: '500px',
-        background: 'radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 65%)',
-        pointerEvents: 'none',
+        background: 'radial-gradient(circle, rgba(196,97,74,0.12) 0%, transparent 70%)',
+        pointerEvents: 'none', zIndex: 0,
       }} />
-
-      {/* Subtle grid */}
       <div style={{
-        position: 'fixed', inset: 0,
-        backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
-        backgroundSize: '60px 60px',
-        pointerEvents: 'none',
+        position: 'fixed', bottom: '-120px', left: '-80px',
+        width: '450px', height: '450px',
+        background: 'radial-gradient(circle, rgba(107,158,126,0.1) 0%, transparent 70%)',
+        pointerEvents: 'none', zIndex: 0,
+      }} />
+      <div style={{
+        position: 'fixed', top: '30%', left: '20%',
+        width: '300px', height: '300px',
+        background: 'radial-gradient(circle, rgba(201,151,62,0.07) 0%, transparent 70%)',
+        pointerEvents: 'none', zIndex: 0,
       }} />
 
       {/* Navbar */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
-        background: 'rgba(8,8,16,0.85)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(255,255,255,0.07)',
-        padding: '0 24px', height: '56px',
+        background: 'rgba(250,247,242,0.92)',
+        backdropFilter: 'blur(16px)',
+        borderBottom: `1px solid ${T.border}`,
+        padding: '0 32px', height: '60px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        maxWidth: '100%',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{
-            width: '30px', height: '30px', borderRadius: '8px',
-            background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+            width: '32px', height: '32px', borderRadius: '10px',
+            background: `linear-gradient(135deg, ${T.accent}, ${T.gold})`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '14px', boxShadow: '0 0 16px rgba(168,85,247,0.5)',
-          }}>✦</div>
-          <span style={{ fontSize: '17px', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>
-            Style<span style={{ color: '#a855f7' }}>AI</span>
+            color: '#fff', fontSize: '14px', fontWeight: 900,
+            boxShadow: '0 4px 12px rgba(196,97,74,0.35)',
+          }}>S</div>
+          <span style={{ fontSize: '18px', fontWeight: 900, color: T.textPrimary, letterSpacing: '-0.03em' }}>
+            Style<span style={{ color: T.accent }}>AI</span>
           </span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <span style={{
-            fontSize: '11px', fontWeight: 600, color: '#34d399',
-            background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.3)',
-            borderRadius: '999px', padding: '3px 10px',
+            fontSize: '12px', fontWeight: 600, color: T.sage,
+            background: T.sageLight, borderRadius: '999px', padding: '4px 12px',
           }}>Free · No signup</span>
+          <button
+            onClick={() => navigate('/upload')}
+            style={{
+              fontSize: '13px', fontWeight: 700,
+              padding: '8px 20px', borderRadius: '10px', border: 'none',
+              background: T.accent, color: '#fff', cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(196,97,74,0.3)',
+            }}
+          >
+            Get Started
+          </button>
         </div>
       </nav>
 
       {/* Hero */}
       <main style={{
-        display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', minHeight: '100vh',
+        minHeight: '100vh', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
         padding: '100px 24px 60px', textAlign: 'center',
         position: 'relative', zIndex: 1,
       }}>
 
-        {/* Badge */}
+        {/* Eyebrow tag */}
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: '8px',
-          background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.3)',
-          borderRadius: '999px', padding: '6px 16px', marginBottom: '32px',
+          background: T.accentLight,
+          border: `1px solid rgba(196,97,74,0.2)`,
+          borderRadius: '999px', padding: '6px 18px', marginBottom: '36px',
         }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#a855f7', boxShadow: '0 0 8px #a855f7', display: 'inline-block' }} />
-          <span style={{ fontSize: '12px', color: '#c084fc', fontWeight: 600 }}>Powered by Google Gemini Vision AI</span>
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.accent, display: 'inline-block' }} />
+          <span style={{ fontSize: '12px', fontWeight: 700, color: T.accent, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            Powered by Google Gemini Vision
+          </span>
         </div>
 
-        {/* Headline */}
-        <h1 style={{ fontSize: 'clamp(36px, 7vw, 72px)', fontWeight: 900, lineHeight: 1.05, margin: '0 0 20px', color: '#fff', letterSpacing: '-0.03em', maxWidth: '800px' }}>
-          Your Personal{' '}
+        {/* Big headline */}
+        <h1 style={{
+          fontSize: 'clamp(42px, 8vw, 88px)', fontWeight: 900,
+          lineHeight: 1.0, margin: '0 0 24px',
+          color: T.textPrimary, letterSpacing: '-0.04em',
+          maxWidth: '800px',
+        }}>
+          Dress for
+          <br />
           <span style={{
-            background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%)',
+            background: `linear-gradient(135deg, ${T.accent} 0%, ${T.gold} 60%)`,
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
-          }}>AI Stylist</span>
+          }}>
+            your body.
+          </span>
         </h1>
 
-        <p style={{ fontSize: 'clamp(15px, 2.5vw, 19px)', color: '#94a3b8', margin: '0 0 48px', maxWidth: '560px', lineHeight: 1.6 }}>
-          Upload 3 photos. AI analyzes your skin tone, body type, and face shape — then gives you a full personalized style guide.
+        <p style={{
+          fontSize: 'clamp(15px, 2.2vw, 19px)', color: T.textSecondary,
+          margin: '0 0 12px', maxWidth: '520px', lineHeight: 1.65,
+        }}>
+          Upload 3 photos. Our AI reads your skin tone, body shape, and face structure — then builds a complete personal style guide.
+        </p>
+        <p style={{ fontSize: '13px', color: T.textMuted, margin: '0 0 52px' }}>
+          Takes 15 seconds · Completely free · No account needed
         </p>
 
-        {/* Feature pills */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginBottom: '48px' }}>
+        {/* Feature row */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', marginBottom: '48px' }}>
           {[
-            { icon: '🎨', text: 'Color Palette', color: '#a855f7' },
-            { icon: '👤', text: 'Body Type', color: '#3b82f6' },
-            { icon: '✂️', text: 'Style Guide', color: '#ec4899' },
-            { icon: '📅', text: 'Daily Outfits', color: '#f97316' },
-            { icon: '💡', text: 'Pro Tips', color: '#10b981' },
+            { icon: '🎨', label: 'Color Palette', bg: T.accentLight, color: T.accent },
+            { icon: '👤', label: 'Body Type', bg: T.sageLight, color: T.sage },
+            { icon: '✂️', label: 'Style Guide', bg: T.goldLight, color: T.gold },
+            { icon: '📅', label: 'Outfit Ideas', bg: T.accentLight, color: T.accent },
+            { icon: '💡', label: 'Pro Tips', bg: T.sageLight, color: T.sage },
           ].map(f => (
-            <div key={f.text} style={{
+            <div key={f.label} style={{
               display: 'flex', alignItems: 'center', gap: '7px',
-              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '999px', padding: '8px 16px',
+              background: f.bg, borderRadius: '999px', padding: '8px 16px',
             }}>
-              <span style={{ fontSize: '14px' }}>{f.icon}</span>
-              <span style={{ fontSize: '13px', color: '#cbd5e1', fontWeight: 500 }}>{f.text}</span>
+              <span style={{ fontSize: '13px' }}>{f.icon}</span>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: f.color }}>{f.label}</span>
             </div>
           ))}
         </div>
 
-        {/* CTA Button */}
+        {/* CTA */}
         <button
           onClick={() => navigate('/upload')}
           onMouseEnter={() => setBtnHovered(true)}
           onMouseLeave={() => setBtnHovered(false)}
           style={{
-            fontSize: '16px', fontWeight: 700,
-            padding: '16px 40px', borderRadius: '14px', border: 'none',
+            fontSize: '16px', fontWeight: 800,
+            padding: '18px 48px', borderRadius: '16px', border: 'none',
             background: btnHovered
-              ? 'linear-gradient(135deg, #9333ea, #db2777)'
-              : 'linear-gradient(135deg, #a855f7, #ec4899)',
+              ? `linear-gradient(135deg, ${T.accentHover}, #b0852c)`
+              : `linear-gradient(135deg, ${T.accent}, ${T.gold})`,
             color: '#fff', cursor: 'pointer',
             boxShadow: btnHovered
-              ? '0 0 40px rgba(168,85,247,0.6), 0 20px 40px rgba(0,0,0,0.4)'
-              : '0 0 24px rgba(168,85,247,0.4), 0 8px 24px rgba(0,0,0,0.3)',
-            transform: btnHovered ? 'translateY(-3px) scale(1.02)' : 'translateY(0) scale(1)',
+              ? '0 12px 40px rgba(196,97,74,0.45)'
+              : '0 6px 24px rgba(196,97,74,0.35)',
+            transform: btnHovered ? 'translateY(-2px)' : 'translateY(0)',
             transition: 'all 0.2s ease',
             display: 'flex', alignItems: 'center', gap: '10px',
           }}
         >
-          Get My Style Analysis
-          <span style={{ fontSize: '18px', transition: 'transform 0.2s', transform: btnHovered ? 'translateX(4px)' : 'translateX(0)' }}>→</span>
+          Find My Style
+          <span style={{ fontSize: '20px', transition: 'transform 0.2s', transform: btnHovered ? 'translateX(4px)' : 'translateX(0)' }}>→</span>
         </button>
 
-        <p style={{ fontSize: '12px', color: '#475569', marginTop: '16px' }}>
-          Free · No account needed · Results in seconds
-        </p>
-
         {/* How it works */}
-        <div style={{ marginTop: '100px', width: '100%', maxWidth: '760px' }}>
-          <p style={{ fontSize: '12px', fontWeight: 700, color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '40px' }}>
-            How it works
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+        <div style={{ marginTop: '100px', width: '100%', maxWidth: '800px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px', justifyContent: 'center' }}>
+            <div style={{ flex: 1, height: '1px', background: T.border }} />
+            <span style={{ fontSize: '12px', fontWeight: 700, color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>
+              How it works
+            </span>
+            <div style={{ flex: 1, height: '1px', background: T.border }} />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
             {[
-              { step: '01', icon: '📸', title: 'Upload 3 Photos', desc: 'Front body, face closeup, side profile — for complete visual analysis' },
-              { step: '02', icon: '🧠', title: 'AI Analyzes You', desc: 'Gemini Vision reads skin tone, body shape, and facial features' },
-              { step: '03', icon: '✦', title: 'Get Your Guide', desc: 'Personalized colors, fits, styles, and daily outfit ideas just for you' },
+              { step: '01', icon: '📸', title: 'Upload 3 Photos', desc: 'Front body, face closeup, side profile — gives AI a full picture of you', color: T.accent, light: T.accentLight },
+              { step: '02', icon: '🧠', title: 'AI Reads You', desc: 'Gemini Vision analyzes skin tone, body proportions, and facial features', color: T.sage, light: T.sageLight },
+              { step: '03', icon: '✦', title: 'Get Your Guide', desc: 'Colors, fits, styles, outfit ideas — all tailored specifically to you', color: T.gold, light: T.goldLight },
             ].map(s => (
               <div key={s.step} style={{
-                background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
-                borderRadius: '16px', padding: '24px', textAlign: 'left',
+                background: T.white, border: `1px solid ${T.border}`,
+                borderRadius: '20px', padding: '28px 24px', textAlign: 'left',
+                boxShadow: T.shadow,
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                  <span style={{ fontSize: '22px' }}>{s.icon}</span>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#475569', letterSpacing: '0.05em' }}>{s.step}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                  <div style={{
+                    width: '40px', height: '40px', borderRadius: '12px',
+                    background: s.light,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '18px',
+                  }}>{s.icon}</div>
+                  <span style={{ fontSize: '11px', fontWeight: 800, color: s.color, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{s.step}</span>
                 </div>
-                <p style={{ fontSize: '15px', fontWeight: 700, color: '#f1f5f9', margin: '0 0 8px' }}>{s.title}</p>
-                <p style={{ fontSize: '13px', color: '#64748b', margin: 0, lineHeight: 1.55 }}>{s.desc}</p>
+                <p style={{ fontSize: '15px', fontWeight: 800, color: T.textPrimary, margin: '0 0 8px' }}>{s.title}</p>
+                <p style={{ fontSize: '13px', color: T.textSecondary, margin: 0, lineHeight: 1.6 }}>{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Bottom note */}
-        <p style={{ marginTop: '80px', fontSize: '12px', color: '#334155', textAlign: 'center' }}>
-          🔒 Your photos are processed instantly and never stored
+        {/* Bottom privacy note */}
+        <p style={{ marginTop: '80px', fontSize: '12px', color: T.textMuted }}>
+          🔒 Photos are never stored — processed instantly and discarded
         </p>
       </main>
-
-      <style>{`
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-      `}</style>
     </div>
   )
 }

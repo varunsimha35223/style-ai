@@ -1,6 +1,86 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
+function buildOutfitPrompt(occasion, idea, result) {
+  const colors = (result.best_colors || []).slice(0, 3).join(', ')
+  const styles = (result.style_suggestions || []).slice(0, 2).join(', ')
+  return encodeURIComponent(
+    `fashion editorial photo, ${idea}, ${result.skin_tone} skin tone, ${result.body_type} body type, ` +
+    `wearing ${colors} colors, ${styles} style, full body shot, studio lighting, clean white background, ` +
+    `high quality fashion photography, professional model, ${occasion} outfit, 2025 fashion`
+  )
+}
+
+function OutfitImage({ occasion, idea, result }) {
+  const [status, setStatus] = useState('idle') // idle | loading | loaded | error
+  const [seed] = useState(() => Math.floor(Math.random() * 9999))
+
+  const prompt = buildOutfitPrompt(occasion, idea, result)
+  const src = `https://image.pollinations.ai/prompt/${prompt}?width=400&height=560&seed=${seed}&nologo=true`
+
+  if (status === 'idle') {
+    return (
+      <button
+        onClick={() => setStatus('loading')}
+        style={{
+          marginTop: '10px',
+          fontSize: '12px', fontWeight: 700,
+          padding: '7px 16px', borderRadius: '8px', border: 'none',
+          background: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(236,72,153,0.2))',
+          outline: '1px solid rgba(168,85,247,0.4)',
+          color: '#e879f9', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', gap: '6px',
+          transition: 'all 0.15s',
+        }}
+      >
+        ✦ Generate Sample Look
+      </button>
+    )
+  }
+
+  return (
+    <div style={{ marginTop: '12px', position: 'relative' }}>
+      {status === 'loading' && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 2,
+          background: 'rgba(8,8,16,0.85)',
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          borderRadius: '12px', minHeight: '120px', gap: '10px',
+        }}>
+          <div style={{
+            width: '28px', height: '28px', borderRadius: '50%',
+            borderTop: '2px solid #a855f7',
+            border: '2px solid rgba(168,85,247,0.15)',
+            animation: 'spin 0.8s linear infinite',
+          }} />
+          <span style={{ fontSize: '12px', color: '#a855f7', fontWeight: 600 }}>Generating look…</span>
+        </div>
+      )}
+      <img
+        src={src}
+        alt={`${occasion} outfit`}
+        onLoad={() => setStatus('loaded')}
+        onError={() => setStatus('error')}
+        style={{
+          width: '100%', maxWidth: '220px',
+          borderRadius: '12px',
+          border: '1px solid rgba(168,85,247,0.3)',
+          display: status === 'error' ? 'none' : 'block',
+          opacity: status === 'loaded' ? 1 : 0,
+          transition: 'opacity 0.4s',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+        }}
+      />
+      {status === 'error' && (
+        <p style={{ fontSize: '12px', color: '#ef4444', margin: '8px 0 0' }}>
+          Generation failed — try again
+        </p>
+      )}
+    </div>
+  )
+}
+
 const COLOR_MAP = {
   'Navy': '#1e3a5f', 'Navy Blue': '#1e3a5f',
   'White': '#f8fafc', 'Cream': '#fef9ef', 'Ivory': '#fffff0',
@@ -298,21 +378,26 @@ export default function Results() {
         {/* 4. Daily Outfit Ideas */}
         {result.outfit_ideas && Object.keys(result.outfit_ideas).length > 0 && (
           <Section title="Daily Outfit Ideas" icon="📅">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <p style={{ fontSize: '12px', color: '#475569', margin: '0 0 16px' }}>
+              Click <strong style={{ color: '#a855f7' }}>✦ Generate Sample Look</strong> on any occasion to see an AI-generated outfit image
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {Object.entries(result.outfit_ideas).map(([occasion, idea]) => (
                 <div key={occasion} style={{
                   background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: '12px', padding: '14px 16px',
-                  display: 'flex', gap: '12px',
+                  borderRadius: '14px', padding: '16px',
                 }}>
-                  <div style={{
-                    flexShrink: 0, width: '90px', fontSize: '11px', fontWeight: 700,
-                    color: '#a855f7', textTransform: 'uppercase', letterSpacing: '0.05em',
-                    paddingTop: '2px',
-                  }}>
-                    {occasion}
+                  <div style={{ display: 'flex', gap: '12px', marginBottom: '4px' }}>
+                    <div style={{
+                      flexShrink: 0, width: '90px', fontSize: '11px', fontWeight: 700,
+                      color: '#a855f7', textTransform: 'uppercase', letterSpacing: '0.05em',
+                      paddingTop: '2px',
+                    }}>
+                      {occasion}
+                    </div>
+                    <p style={{ fontSize: '14px', color: '#cbd5e1', margin: 0, lineHeight: 1.6, flex: 1 }}>{idea}</p>
                   </div>
-                  <p style={{ fontSize: '14px', color: '#cbd5e1', margin: 0, lineHeight: 1.6, flex: 1 }}>{idea}</p>
+                  <OutfitImage occasion={occasion} idea={idea} result={result} />
                 </div>
               ))}
             </div>
@@ -358,6 +443,7 @@ export default function Results() {
           <p style={{ fontSize: '12px', color: '#334155', marginTop: '12px' }}>Free · No signup · Instant results</p>
         </div>
       </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

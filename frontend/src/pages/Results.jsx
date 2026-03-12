@@ -1,26 +1,35 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
-function buildFlickrKeywords(occasion, idea, result) {
-  const words = idea.toLowerCase().match(/\b(blazer|shirt|trousers|jeans|dress|skirt|jacket|coat|sweater|kurta|saree|suit|formal|casual|sporty|elegant|fitted|loose|linen|cotton|denim)\b/g) || []
-  const colors = (result.best_colors || []).slice(0, 2).map(c => c.toLowerCase().split(' ')[0])
-  const occasionMap = {
-    'Daily Casual': 'casual,streetstyle',
-    'Office': 'office,workwear,professional',
-    'College': 'campus,student,casual',
-    'Gym': 'activewear,sportswear,gym',
-    'Formal Events': 'formal,elegant,gala',
-  }
-  const base = occasionMap[occasion] || 'fashion,outfit'
-  const extras = [...new Set([...words.slice(0, 2), ...colors.slice(0, 1)])].join(',')
-  return `${base},${extras}`.replace(/,+/g, ',').replace(/,$/, '')
+function buildImageKeywords(occasion, idea, result) {
+  // ALWAYS start with fashion,clothing,outfit — this forces Flickr to only return
+  // photos tagged with ALL three terms, eliminating off-topic results like statues/cats
+  const fashionBase = 'fashion,clothing,outfit'
+
+  // Pick one specific garment word from the AI recommendation
+  const garment = (idea.toLowerCase().match(
+    /\b(blazer|shirt|trousers|jeans|dress|skirt|jacket|coat|sweater|suit|linen|denim|saree|kurta|chinos|turtleneck)\b/
+  ) || [])[0] || ''
+
+  // Occasion-specific fashion term (no generic words like "casual","campus","office")
+  const occasionTag = {
+    'Daily Casual':  'streetfashion',
+    'Office':        'businessattire',
+    'College':       'casualwear',
+    'Gym':           'sportswear,activewear',
+    'Formal Events': 'formalwear,eveningwear',
+  }[occasion] || 'fashionweek'
+
+  return [fashionBase, occasionTag, garment]
+    .filter(Boolean).join(',').replace(/,+/g, ',')
 }
 
 function OutfitImage({ occasion, idea, result }) {
   const [status, setStatus] = useState('idle')
   const [counter, setCounter] = useState(0)
 
-  const keywords = buildFlickrKeywords(occasion, idea, result)
+  const keywords = buildImageKeywords(occasion, idea, result)
+  // loremflickr with strict fashion keywords — lock changes on "Different" click
   const src = `https://loremflickr.com/400/560/${keywords}?lock=${counter}`
 
   if (status === 'idle') {

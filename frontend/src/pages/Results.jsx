@@ -1,125 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
-function buildImageKeywords(occasion, idea, result) {
-  // ALWAYS start with fashion,clothing,outfit — this forces Flickr to only return
-  // photos tagged with ALL three terms, eliminating off-topic results like statues/cats
-  const fashionBase = 'fashion,clothing,outfit'
-
-  // Pick one specific garment word from the AI recommendation
-  const garment = (idea.toLowerCase().match(
-    /\b(blazer|shirt|trousers|jeans|dress|skirt|jacket|coat|sweater|suit|linen|denim|saree|kurta|chinos|turtleneck)\b/
-  ) || [])[0] || ''
-
-  // Occasion-specific fashion term (no generic words like "casual","campus","office")
-  const occasionTag = {
-    'Daily Casual':  'streetfashion',
-    'Office':        'businessattire',
-    'College':       'casualwear',
-    'Gym':           'sportswear,activewear',
-    'Formal Events': 'formalwear,eveningwear',
-  }[occasion] || 'fashionweek'
-
-  return [fashionBase, occasionTag, garment]
-    .filter(Boolean).join(',').replace(/,+/g, ',')
-}
-
-function OutfitImage({ occasion, idea, result }) {
-  const [status, setStatus] = useState('idle')
-  const [counter, setCounter] = useState(0)
-
-  const keywords = buildImageKeywords(occasion, idea, result)
-  // loremflickr with strict fashion keywords — lock changes on "Different" click
-  const src = `https://loremflickr.com/400/560/${keywords}?lock=${counter}`
-
-  if (status === 'idle') {
-    return (
-      <button
-        onClick={() => setStatus('loading')}
-        style={{
-          marginTop: '12px',
-          fontSize: '12px', fontWeight: 700, letterSpacing: '-0.01em',
-          padding: '8px 16px', borderRadius: '999px',
-          border: `1.5px solid ${T.border}`,
-          background: T.white, color: T.textSecondary,
-          cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
-          transition: 'all 0.15s',
-        }}
-      >
-        ✦ Show Style Inspiration
-      </button>
-    )
-  }
-
-  return (
-    <div style={{ marginTop: '14px' }}>
-      <div style={{ position: 'relative', display: 'inline-block' }}>
-        {status === 'loading' && (
-          <div style={{
-            position: 'absolute', inset: 0, zIndex: 2,
-            background: 'rgba(249,247,244,0.9)',
-            display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center',
-            borderRadius: '14px', width: '200px', height: '280px', gap: '10px',
-          }}>
-            <div style={{
-              width: '24px', height: '24px', borderRadius: '50%',
-              border: `2px solid ${T.border}`,
-              borderTop: `2px solid ${T.accent}`,
-              animation: 'spin 0.8s linear infinite',
-            }} />
-            <span style={{ fontSize: '11px', color: T.textMuted, fontWeight: 600 }}>Loading…</span>
-          </div>
-        )}
-        <img
-          key={src}
-          src={src}
-          alt={`${occasion} style inspiration`}
-          onLoad={() => setStatus('loaded')}
-          onError={() => setStatus('error')}
-          style={{
-            width: '200px', height: '280px',
-            objectFit: 'cover', borderRadius: '14px',
-            border: `1px solid ${T.border}`,
-            display: status === 'error' ? 'none' : 'block',
-            opacity: status === 'loaded' ? 1 : 0,
-            transition: 'opacity 0.4s',
-            boxShadow: '0 4px 20px rgba(15,14,13,0.08)',
-          }}
-        />
-        {status === 'loaded' && (
-          <div style={{ position: 'absolute', bottom: '8px', right: '8px' }}>
-            <button
-              onClick={e => { e.stopPropagation(); setStatus('loading'); setCounter(c => c + 1) }}
-              title="Show different photo"
-              style={{
-                fontSize: '11px', fontWeight: 700, letterSpacing: '-0.01em',
-                padding: '5px 10px', borderRadius: '999px', border: 'none',
-                background: T.textPrimary, color: '#fff', cursor: 'pointer',
-              }}
-            >↻ Different</button>
-          </div>
-        )}
-      </div>
-      {status === 'error' && (
-        <div style={{ marginTop: '8px' }}>
-          <p style={{ fontSize: '12px', color: '#ef4444', margin: '0 0 6px' }}>Could not load photo</p>
-          <button
-            onClick={() => { setStatus('loading'); setCounter(c => c + 1) }}
-            style={{
-              fontSize: '12px', fontWeight: 600, padding: '5px 12px',
-              borderRadius: '999px', border: `1.5px solid ${T.border}`,
-              background: T.white, color: T.textSecondary, cursor: 'pointer',
-            }}
-          >Retry</button>
-        </div>
-      )}
-      <p style={{ fontSize: '10px', color: T.textMuted, margin: '8px 0 0' }}>
-        Style inspiration via Flickr
-      </p>
-    </div>
-  )
-}
 
 const COLOR_MAP = {
   'Navy': '#1e3a5f', 'Navy Blue': '#1e3a5f',
@@ -481,16 +362,13 @@ export default function Results() {
         {/* 4. Outfit Ideas */}
         {result.outfit_ideas && Object.keys(result.outfit_ideas).length > 0 && (
           <Section title="Daily Outfit Ideas" icon="📅" accentKey="gold">
-            <p style={{ fontSize: '12px', color: T.textMuted, margin: '0 0 18px', lineHeight: 1.5 }}>
-              Tap <strong style={{ color: T.accent }}>Show Style Inspiration</strong> for real fashion photos matching each look.
-            </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {Object.entries(result.outfit_ideas).map(([occasion, idea]) => (
                 <div key={occasion} style={{
                   background: T.bg, border: `1px solid ${T.border}`,
                   borderRadius: '18px', padding: '18px 20px',
                 }}>
-                  <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', marginBottom: '4px' }}>
+                  <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
                     <span style={{
                       flexShrink: 0, fontSize: '10px', fontWeight: 800,
                       color: T.goldText, textTransform: 'uppercase', letterSpacing: '0.08em',
@@ -501,7 +379,6 @@ export default function Results() {
                     </span>
                     <p style={{ fontSize: '14px', color: T.textSecondary, margin: 0, lineHeight: 1.65, flex: 1 }}>{idea}</p>
                   </div>
-                  <OutfitImage occasion={occasion} idea={idea} result={result} />
                 </div>
               ))}
             </div>
